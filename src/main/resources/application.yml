@@ -1,0 +1,21 @@
+spring:
+  application:
+    security:
+      jwt:
+        secret: f00b9e5a3e233c6fc694c27431288d17624f907db62684cea474a113eed69195
+        expirationMs: 864000000
+    name: sales-management
+  datasource:
+    url: jdbc:mysql://localhost:3306/SalesManagement
+    username: amr
+    password: 12345678
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+    database: mysql
