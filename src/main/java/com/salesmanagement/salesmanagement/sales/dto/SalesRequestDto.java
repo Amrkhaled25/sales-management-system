@@ -1,5 +1,6 @@
 package com.salesmanagement.salesmanagement.sales.dto;
 
+import com.salesmanagement.salesmanagement.clients.management.model.Client;
 import com.salesmanagement.salesmanagement.products.management.model.Product;
 import com.salesmanagement.salesmanagement.sales.model.Transactions;
 import lombok.AllArgsConstructor;
@@ -14,8 +15,6 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class SalesRequestDto {
-    private int quantity;
-    private Double price;
-    private Long clientId;
+    private Client client;
     private List<Transactions>transactions ;
 }

@@ -19,6 +19,5 @@ public class Seller {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id ;
     private String name ;
-    @OneToMany(mappedBy = "seller" , cascade = CascadeType.ALL)
-    private List<Product> products ;
+
 }

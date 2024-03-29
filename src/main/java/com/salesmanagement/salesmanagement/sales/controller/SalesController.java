@@ -22,7 +22,7 @@ public class SalesController {
                     message("All sales fetched successfully").
                     data(
                             SalesData.builder().
-                                    salesList(sales)
+                                    sales(sales)
                                     .build()
                     ).
                     build());

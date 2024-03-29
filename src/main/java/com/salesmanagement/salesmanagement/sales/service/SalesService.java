@@ -9,6 +9,7 @@ import com.salesmanagement.salesmanagement.sales.dto.SalesResponseDto;
 import com.salesmanagement.salesmanagement.sales.model.Sales;
 import com.salesmanagement.salesmanagement.sales.model.Transactions;
 import com.salesmanagement.salesmanagement.sales.repository.SalesRepository;
+import com.salesmanagement.salesmanagement.sales.repository.TransactionsRepository;
 import com.salesmanagement.salesmanagement.sellers.repository.SellerRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,24 +24,34 @@ public class SalesService {
     private final ClientRepository clientRepository;
     private final ProductRepository productRepository;
     private final SellerRepository sellerRepository;
+    private final TransactionsRepository transactionsRepository;
     public List<Sales> getAllSales() {
         return salesRepository.findAll();
     }
 
     @Transactional
     public void createSales(SalesRequestDto request) {
-        var client  = isClientExist(request.getClientId());
+        var client =isClientExist(request.getClient().getId());
         isValidTransaction(request.getTransactions());
-        var transactions = request.getTransactions();
+
+        var savedTransactions = request.getTransactions().stream()
+                .map(transaction -> Transactions.builder()
+                        .price(transaction.getPrice())
+                        .quantity(transaction.getQuantity())
+                        .build())
+                .toList();
+        transactionsRepository.saveAll(savedTransactions);
+        List<Transactions> transactions = request.getTransactions();
+
         var total = transactions.stream().mapToDouble(transaction -> transaction.getPrice() * transaction.getQuantity()).sum();
         // update product quantity
         transactions.forEach(transaction -> {
             updateProductQuantity(transaction.getProduct(), transaction.getQuantity());
         });
+
         var sales  = Sales.builder().
-                client(client).
                 total(total).
-                transactions(transactions).
+                transactions(savedTransactions).
                 build() ;
         salesRepository.save(sales);
     }
@@ -69,12 +80,16 @@ public class SalesService {
                 throw new RuntimeException("Invalid quantity");
             if (!isValidPrice(product, transaction.getPrice()))
                 throw new RuntimeException("Invalid price");
+
         }
     }
 
+    @Transactional
     public void updateProductQuantity(Product product, int quantity){
-        product.setAvailable_quantity(product.getAvailable_quantity() - quantity);
-        productRepository.save(product);
+        Product oldProduct = productRepository.findById(product.getId())
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+        oldProduct.setAvailable_quantity(oldProduct.getAvailable_quantity() - quantity);
+        productRepository.save(oldProduct);
     }
 
 

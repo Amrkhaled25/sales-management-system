@@ -26,12 +26,13 @@ public class Sales {
     @CreationTimestamp
     private Date creationDate;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "client_id")
     private Client client;
 
     private Double total ;
 
-    @OneToMany(mappedBy = "sales" , cascade = CascadeType.ALL)
+    @OneToMany
+    @JoinColumn(name = "transactions_id")
     private List<Transactions> transactions;
 }
