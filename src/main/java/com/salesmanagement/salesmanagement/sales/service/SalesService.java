@@ -33,26 +33,18 @@ public class SalesService {
     public void createSales(SalesRequestDto request) {
         var client =isClientExist(request.getClient().getId());
         isValidTransaction(request.getTransactions());
-
-        var savedTransactions = request.getTransactions().stream()
-                .map(transaction -> Transactions.builder()
-                        .price(transaction.getPrice())
-                        .quantity(transaction.getQuantity())
-                        .build())
-                .toList();
-        transactionsRepository.saveAll(savedTransactions);
-        List<Transactions> transactions = request.getTransactions();
-
-        var total = transactions.stream().mapToDouble(transaction -> transaction.getPrice() * transaction.getQuantity()).sum();
-        // update product quantity
-        transactions.forEach(transaction -> {
-            updateProductQuantity(transaction.getProduct(), transaction.getQuantity());
+        request.getTransactions().forEach(transaction -> {
+            transaction.setProduct(updateProductQuantity(transaction.getProduct(), transaction.getQuantity()));
+            transactionsRepository.save(transaction) ;
         });
 
-        var sales  = Sales.builder().
-                total(total).
-                transactions(savedTransactions).
-                build() ;
+        var total = request.getTransactions().stream().mapToDouble(transaction -> transaction.getPrice() * transaction.getQuantity()).sum();
+
+        Sales sales = Sales.builder()
+                .client(client)
+                .transactions(request.getTransactions())
+                .total(total)
+                .build();
         salesRepository.save(sales);
     }
 
@@ -85,11 +77,11 @@ public class SalesService {
     }
 
     @Transactional
-    public void updateProductQuantity(Product product, int quantity){
+    public Product updateProductQuantity(Product product, int quantity){
         Product oldProduct = productRepository.findById(product.getId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
         oldProduct.setAvailable_quantity(oldProduct.getAvailable_quantity() - quantity);
-        productRepository.save(oldProduct);
+        return  productRepository.save(oldProduct);
     }
 
 

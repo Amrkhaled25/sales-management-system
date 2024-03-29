@@ -16,11 +16,11 @@ import lombok.NoArgsConstructor;
 
 public class Transactions {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private int quantity;
     private Double price;
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
 

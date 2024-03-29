@@ -19,7 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 public class Sales {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "creation_date", nullable = false, updatable = false)
